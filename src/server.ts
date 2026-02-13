@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { isMantisConfigured } from "./config/index.js";
+import { isMantisConfigured, config } from "./config/index.js";
 import mantisApi, { MantisApiError, User } from "./services/mantisApi.js";
 import { log } from "./utils/logger.js";
 import { gzip } from 'zlib';
@@ -119,27 +119,29 @@ export function createServer(): McpServer {
   });
 
   // Search issues using SOAP API (supports text search)
-  server.tool(
-    "search_issues",
-    "Search Mantis issues by text using SOAP API. Unlike get_issues, this supports full text search across issue summaries and descriptions",
-    {
-      search: z.string().describe("Search text to find in issue summaries and descriptions"),
-      projectId: z.number().optional().describe("Project ID to limit search"),
-      statusId: z.number().optional().describe("Status ID filter"),
-      handlerId: z.number().optional().describe("Handler ID filter"),
-      reporterId: z.number().optional().describe("Reporter ID filter"),
-      pageSize: z.number().optional().default(20).describe("Page size"),
-      page: z.number().optional().default(1).describe("Page number, starting from 1"),
-      sort: z.string().optional().describe("Field to sort by, e.g.: 'id', 'last_updated'"),
-      sortDirection: z.enum(['ASC', 'DESC']).optional().describe("Sort direction"),
-    },
-    async (params) => {
-      return withMantisConfigured("search_issues", async () => {
-        const issues = await mantisApi.searchIssues(params);
-        return JSON.stringify(issues, null, 2);
-      });
-    }
-  );
+  if (config.ENABLE_SOAP) {
+    server.tool(
+      "search_issues",
+      "Search Mantis issues by text using SOAP API. Unlike get_issues, this supports full text search across issue summaries and descriptions",
+      {
+        search: z.string().describe("Search text to find in issue summaries and descriptions"),
+        projectId: z.number().optional().describe("Project ID to limit search"),
+        statusId: z.number().optional().describe("Status ID filter"),
+        handlerId: z.number().optional().describe("Handler ID filter"),
+        reporterId: z.number().optional().describe("Reporter ID filter"),
+        pageSize: z.number().optional().default(20).describe("Page size"),
+        page: z.number().optional().default(1).describe("Page number, starting from 1"),
+        sort: z.string().optional().describe("Field to sort by, e.g.: 'id', 'last_updated'"),
+        sortDirection: z.enum(['ASC', 'DESC']).optional().describe("Sort direction"),
+      },
+      async (params) => {
+        return withMantisConfigured("search_issues", async () => {
+          const issues = await mantisApi.searchIssues(params);
+          return JSON.stringify(issues, null, 2);
+        });
+      }
+    );
+  }
 
   // Get issue list
   server.tool(

@@ -23,6 +23,9 @@ const ConfigSchema = z.object({
   CACHE_ENABLED: z.coerce.boolean().default(true),
   CACHE_TTL_SECONDS: z.coerce.number().default(300), // 5 minutes
   
+  // SOAP API configuration
+  ENABLE_SOAP: z.coerce.boolean().default(false),
+
   // Logging configuration
   LOG_DIR: z.string().default(path.join(__dirname, '../../logs')),
   ENABLE_FILE_LOGGING: z.coerce.boolean().default(false),
@@ -47,6 +50,7 @@ const parseConfig = () => {
       LOG_LEVEL: process.env.LOG_LEVEL,
       CACHE_ENABLED: process.env.CACHE_ENABLED,
       CACHE_TTL_SECONDS: process.env.CACHE_TTL_SECONDS,
+      ENABLE_SOAP: process.env.ENABLE_SOAP,
       LOG_DIR: process.env.LOG_DIR,
       ENABLE_FILE_LOGGING: process.env.ENABLE_FILE_LOGGING,
     });
