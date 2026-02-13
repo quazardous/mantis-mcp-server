@@ -421,7 +421,7 @@ export class MantisApi {
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:man="http://futureware.biz/mantisconnect">
   <soapenv:Body>
     <man:mc_filter_search_issues>
-      <man:username></man:username>
+      <man:username>${this.xmlEscape(config.MANTIS_USERNAME || '')}</man:username>
       <man:password>${this.xmlEscape(apiKey)}</man:password>
       <man:filter>
         ${filterFields}
@@ -442,7 +442,7 @@ export class MantisApi {
       });
 
       const parser = new XMLParser({
-        ignoreAttributes: false,
+        ignoreAttributes: true,
         removeNSPrefix: true,
       });
       const parsed = parser.parse(response.data);
@@ -460,8 +460,9 @@ export class MantisApi {
         return [];
       }
 
-      // Normalize to array
-      const items = Array.isArray(result) ? result : [result];
+      // Extract items from SOAP array structure (result.item or result directly)
+      const rawItems = result.item || result;
+      const items = Array.isArray(rawItems) ? rawItems : [rawItems];
 
       // Map SOAP issue format to our Issue interface
       return items.map((item: any) => this.mapSoapIssue(item));

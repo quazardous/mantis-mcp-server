@@ -25,6 +25,7 @@ const ConfigSchema = z.object({
   
   // SOAP API configuration
   ENABLE_SOAP: z.coerce.boolean().default(false),
+  MANTIS_USERNAME: z.string().optional(),
 
   // Logging configuration
   LOG_DIR: z.string().default(path.join(__dirname, '../../logs')),
@@ -51,6 +52,7 @@ const parseConfig = () => {
       CACHE_ENABLED: process.env.CACHE_ENABLED,
       CACHE_TTL_SECONDS: process.env.CACHE_TTL_SECONDS,
       ENABLE_SOAP: process.env.ENABLE_SOAP,
+      MANTIS_USERNAME: process.env.MANTIS_USERNAME,
       LOG_DIR: process.env.LOG_DIR,
       ENABLE_FILE_LOGGING: process.env.ENABLE_FILE_LOGGING,
     });
