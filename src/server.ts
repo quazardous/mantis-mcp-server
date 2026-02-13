@@ -130,6 +130,8 @@ export function createServer(): McpServer {
       pageSize: z.number().optional().default(20).describe("Page size"),
       page: z.number().optional().default(0).describe("Page start position, starting from 1"),
       select: z.array(z.string()).optional().describe("Fields to return, e.g.: ['id', 'summary', 'description']"),
+      sort: z.string().optional().describe("Field to sort by, e.g.: 'id', 'last_updated', 'created_at'"),
+      dir: z.enum(['ASC', 'DESC']).optional().describe("Sort direction: ASC or DESC"),
     },
     async (params) => {
       return withMantisConfigured("get_issues", async () => {
@@ -501,6 +503,24 @@ export function createServer(): McpServer {
           severity: params.severity ? { name: params.severity } : undefined,
         };
         const issue = await mantisApi.updateIssue(params.issueId, updateData);
+        return JSON.stringify(issue, null, 2);
+      });
+    }
+  );
+
+  // Change issue status with optional note
+  server.tool(
+    "change_issue_status",
+    "Change a Mantis issue status with an optional note. Useful for closing, resolving, or transitioning issues while documenting the reason",
+    {
+      issueId: z.number().describe("Issue ID"),
+      status: z.string().describe("Target status name (e.g.: 'closed', 'resolved', 'acknowledged', 'confirmed', 'assigned')"),
+      resolution: z.string().optional().describe("Resolution name (e.g.: 'fixed', 'unable to reproduce', 'not fixable', 'duplicate', 'no change required', 'suspended', 'won't fix')"),
+      note: z.string().optional().describe("Note explaining the status change"),
+    },
+    async (params) => {
+      return withMantisConfigured("change_issue_status", async () => {
+        const issue = await mantisApi.changeIssueStatus(params.issueId, params.status, params.resolution, params.note);
         return JSON.stringify(issue, null, 2);
       });
     }

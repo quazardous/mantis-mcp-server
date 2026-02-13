@@ -51,6 +51,8 @@ export interface IssueSearchParams {
   page?: number;
   search?: string;
   select?: string[];
+  sort?: string;
+  dir?: string;
 }
 
 export interface User {
@@ -223,7 +225,9 @@ export class MantisApi {
     if (params.severity) filter += `&severity=${params.severity}`;
     if (params.search) filter += `&search=${encodeURIComponent(params.search)}`;
     if (params.select?.length) filter += `&select=${params.select.join(',')}`;
-    
+    if (params.sort) filter += `&sort=${encodeURIComponent(params.sort)}`;
+    if (params.dir) filter += `&dir=${encodeURIComponent(params.dir)}`;
+
     const pageSize = params.pageSize || 50;
     const page = params.page ||1;
     
@@ -314,6 +318,21 @@ export class MantisApi {
     log.info('Updating issue', { issueId, updateData });
     const response = await this.api.patch(`/issues/${issueId}`, updateData);
     this.clearCache(); // Clear cache because issue was updated
+    return response.data.issue;
+  }
+
+  // Change issue status with optional note
+  async changeIssueStatus(issueId: number, status: string, resolution?: string, note?: string): Promise<Issue> {
+    log.info('Changing issue status', { issueId, status, resolution, note });
+    if (note) {
+      await this.addIssueNote(issueId, { text: note, view_state: { name: 'public' } });
+    }
+    const updateData: any = { status: { name: status } };
+    if (resolution) {
+      updateData.resolution = { name: resolution };
+    }
+    const response = await this.api.patch(`/issues/${issueId}`, updateData);
+    this.clearCache();
     return response.data.issue;
   }
 
