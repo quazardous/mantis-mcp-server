@@ -131,6 +131,8 @@ export function createServer(): McpServer {
       page: z.number().optional().default(0).describe("Page start position, starting from 1"),
       select: z.array(z.string()).optional().describe("Fields to return, e.g.: ['id', 'summary', 'description']"),
       filterId: z.number().optional().describe("Saved filter ID"),
+      sort: z.string().optional().describe("Field to sort by, e.g.: 'id', 'last_updated', 'created_at'"),
+      dir: z.enum(['ASC', 'DESC']).optional().describe("Sort direction: ASC or DESC"),
     },
     async (params) => {
       return withMantisConfigured("get_issues", async () => {
@@ -457,10 +459,17 @@ export function createServer(): McpServer {
       priority: z.string().optional().describe("Priority"),
       severity: z.string().optional().describe("Severity"),
       additional_information: z.string().optional().describe("Additional information"),
+      custom_fields: z.array(z.object({
+        field: z.object({
+          id: z.number().optional().describe("Custom field ID"),
+          name: z.string().optional().describe("Custom field name"),
+        }).describe("Custom field identifier (id or name)"),
+        value: z.string().describe("Custom field value"),
+      })).optional().describe("Custom fields to set"),
     },
     async (params) => {
       return withMantisConfigured("create_issue", async () => {
-        const issueData = {
+        const issueData: any = {
           summary: params.summary,
           description: params.description,
           project: { id: params.projectId },
@@ -470,6 +479,9 @@ export function createServer(): McpServer {
           severity: params.severity ? { name: params.severity } : undefined,
           additional_information: params.additional_information,
         };
+        if (params.custom_fields?.length) {
+          issueData.custom_fields = params.custom_fields;
+        }
         const issue = await mantisApi.createIssue(issueData);
         return JSON.stringify(issue, null, 2);
       });
@@ -489,10 +501,17 @@ export function createServer(): McpServer {
       resolution: z.string().optional().describe("Resolution"),
       priority: z.string().optional().describe("Priority"),
       severity: z.string().optional().describe("Severity"),
+      custom_fields: z.array(z.object({
+        field: z.object({
+          id: z.number().optional().describe("Custom field ID"),
+          name: z.string().optional().describe("Custom field name"),
+        }).describe("Custom field identifier (id or name)"),
+        value: z.string().describe("Custom field value"),
+      })).optional().describe("Custom fields to update"),
     },
     async (params) => {
       return withMantisConfigured("update_issue", async () => {
-        const updateData = {
+        const updateData: any = {
           summary: params.summary,
           description: params.description,
           handler: params.handlerId ? { id: params.handlerId } : undefined,
@@ -501,7 +520,28 @@ export function createServer(): McpServer {
           priority: params.priority ? { name: params.priority } : undefined,
           severity: params.severity ? { name: params.severity } : undefined,
         };
+        if (params.custom_fields?.length) {
+          updateData.custom_fields = params.custom_fields;
+        }
         const issue = await mantisApi.updateIssue(params.issueId, updateData);
+        return JSON.stringify(issue, null, 2);
+      });
+    }
+  );
+
+  // Change issue status with optional note
+  server.tool(
+    "change_issue_status",
+    "Change a Mantis issue status with an optional note. Useful for closing, resolving, or transitioning issues while documenting the reason",
+    {
+      issueId: z.number().describe("Issue ID"),
+      status: z.string().describe("Target status name (e.g.: 'closed', 'resolved', 'acknowledged', 'confirmed', 'assigned')"),
+      resolution: z.string().optional().describe("Resolution name (e.g.: 'fixed', 'unable to reproduce', 'not fixable', 'duplicate', 'no change required', 'suspended', 'won't fix')"),
+      note: z.string().optional().describe("Note explaining the status change"),
+    },
+    async (params) => {
+      return withMantisConfigured("change_issue_status", async () => {
+        const issue = await mantisApi.changeIssueStatus(params.issueId, params.status, params.resolution, params.note);
         return JSON.stringify(issue, null, 2);
       });
     }
