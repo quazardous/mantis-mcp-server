@@ -130,6 +130,7 @@ export function createServer(): McpServer {
       pageSize: z.number().optional().default(20).describe("Page size"),
       page: z.number().optional().default(0).describe("Page start position, starting from 1"),
       select: z.array(z.string()).optional().describe("Fields to return, e.g.: ['id', 'summary', 'description']"),
+      filterId: z.number().optional().describe("Saved filter ID"),
     },
     async (params) => {
       return withMantisConfigured("get_issues", async () => {
