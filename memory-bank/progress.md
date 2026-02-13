@@ -1,45 +1,45 @@
-# 進度追蹤
+# Progress Tracking
 
-## 當前進度
-- 完成 MCP Server 核心功能實現
-- 完成 Mantis API 整合
-- 完成統計功能開發
-- 進行中: 測試和優化
+## Current Progress
+- Completed MCP Server core functionality implementation
+- Completed Mantis API integration
+- Completed statistics functionality development
+- In Progress: Testing and optimization
 
-## 里程碑
-- [X] 完成基本專案設置
-- [X] 完成系統架構設計
-- [X] 建立基礎伺服器架構
-- [X] 實作 Mantis API 連接
-- [X] 實作認證機制
-- [X] 完成問題狀態查詢功能
-- [X] 完成問題分派查詢功能
-- [X] 實作統計功能
-- [ ] 完成測試和文檔
+## Milestones
+- [X] Complete basic project setup
+- [X] Complete system architecture design
+- [X] Establish basic server architecture
+- [X] Implement Mantis API connection
+- [X] Implement authentication mechanism
+- [X] Complete issue status query functionality
+- [X] Complete issue assignment query functionality
+- [X] Implement statistics functionality
+- [ ] Complete testing and documentation
 
-## 已完成的任務
-- 初始化專案結構和文件
-- 定義 MCP Server 的核心需求
-- 設計系統架構和選擇技術堆疊
-- 確定以 MCP SDK 作為基礎開發
-- 實作環境變數配置
-- 實作 Mantis API 客戶端
-- 添加 API 認證機制
-- 實作錯誤處理機制
-- 實作 6 個核心工具功能
-- 實作請求緩存機制
-- 實作問題統計和分派統計功能
-- 更新使用文檔
+## Completed Tasks
+- Initialize project structure and files
+- Define MCP Server core requirements
+- Design system architecture and select technology stack
+- Decide to develop based on MCP SDK
+- Implement environment variable configuration
+- Implement Mantis API client
+- Add API authentication mechanism
+- Implement error handling mechanism
+- Implement 6 core tool functionalities
+- Implement request caching mechanism
+- Implement issue statistics and assignment statistics functionality
+- Update usage documentation
 
-## 遇到的挑戰
-- TypeScript 中 Zod 與 MCP SDK 整合的類型定義
-- 模組路徑引用需要添加 .js 後綴
-- 錯誤處理需要考慮多種情況
-- 緩存機制需要平衡實時性和性能
-- 統計功能需要處理大量數據和不同維度
+## Challenges Encountered
+- Type definitions for Zod integration with MCP SDK in TypeScript
+- Module path references need to add .js suffix
+- Error handling needs to consider multiple scenarios
+- Caching mechanism needs to balance real-time performance and efficiency
+- Statistics functionality needs to handle large amounts of data and different dimensions
 
-## 下一步計劃
-- 添加單元測試和整合測試
-- 優化錯誤處理和邊緣情況
-- 優化緩存機制
-- 完善文檔和使用示例 
+## Next Steps
+- Add unit tests and integration tests
+- Optimize error handling and edge cases
+- Optimize caching mechanism
+- Improve documentation and usage examples 
