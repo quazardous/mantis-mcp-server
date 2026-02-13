@@ -326,8 +326,8 @@ export class MantisApi {
   async updateIssue(issueId: number, updateData: any): Promise<Issue> {
     log.info('Updating issue', { issueId, updateData });
     const response = await this.api.patch(`/issues/${issueId}`, updateData);
-    this.clearCache(); // Clear cache because issue was updated
-    return response.data.issue;
+    this.clearCache();
+    return response.data?.issue ?? await this.getIssueById(issueId);
   }
 
   // Change issue status with optional note
@@ -342,7 +342,7 @@ export class MantisApi {
     }
     const response = await this.api.patch(`/issues/${issueId}`, updateData);
     this.clearCache();
-    return response.data.issue;
+    return response.data?.issue ?? await this.getIssueById(issueId);
   }
 
   // Add issue note
