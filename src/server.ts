@@ -162,14 +162,16 @@ export function createServer(): McpServer {
     "Get Mantis issue details by ID. Use select to limit returned fields and reduce response size",
     {
       issueId: z.number().describe("Issue ID"),
-      select: z.array(z.string()).optional().describe("Fields to return, e.g.: ['id', 'summary', 'description', 'status', 'custom_fields']. Returns all fields if not specified"),
+      select: z.array(z.string()).optional().describe("Fields to return. Defaults to: id, summary, description, status, project, category, reporter, handler, priority, severity, custom_fields, created_at, updated_at. Use ['*'] to return all fields including notes, history, attachments, etc."),
     },
     async ({ issueId, select }) => {
       return withMantisConfigured("get_issue_by_id", async () => {
         const issue = await mantisApi.getIssueById(issueId);
-        if (select?.length) {
+        const defaultFields = ['id', 'summary', 'description', 'status', 'project', 'category', 'reporter', 'handler', 'priority', 'severity', 'custom_fields', 'created_at', 'updated_at'];
+        const fields = select?.includes('*') ? null : (select?.length ? select : defaultFields);
+        if (fields) {
           const filtered: Record<string, any> = {};
-          for (const field of select) {
+          for (const field of fields) {
             if (field in issue) {
               filtered[field] = (issue as any)[field];
             }
