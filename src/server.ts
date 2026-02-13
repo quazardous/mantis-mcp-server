@@ -159,13 +159,23 @@ export function createServer(): McpServer {
   // Get issue details by ID
   server.tool(
     "get_issue_by_id",
-    "Get Mantis issue details by ID",
+    "Get Mantis issue details by ID. Use select to limit returned fields and reduce response size",
     {
       issueId: z.number().describe("Issue ID"),
+      select: z.array(z.string()).optional().describe("Fields to return, e.g.: ['id', 'summary', 'description', 'status', 'custom_fields']. Returns all fields if not specified"),
     },
-    async ({ issueId }) => {
+    async ({ issueId, select }) => {
       return withMantisConfigured("get_issue_by_id", async () => {
         const issue = await mantisApi.getIssueById(issueId);
+        if (select?.length) {
+          const filtered: Record<string, any> = {};
+          for (const field of select) {
+            if (field in issue) {
+              filtered[field] = (issue as any)[field];
+            }
+          }
+          return JSON.stringify(filtered, null, 2);
+        }
         return JSON.stringify(issue, null, 2);
       });
     }
