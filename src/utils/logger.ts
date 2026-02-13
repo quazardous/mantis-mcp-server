@@ -2,7 +2,7 @@ import winston from 'winston';
 import path from 'path';
 import { config } from '../config/index.js';
 
-// 定義日誌格式
+// Define log format
 const logFormat = winston.format.combine(
   winston.format.timestamp(),
   winston.format.json()
@@ -11,24 +11,24 @@ const logLevel = process.env.LOG_LEVEL || 'info';
 const enableFileLogging = process.env.ENABLE_FILE_LOGGING === 'true';
 const logDir = process.env.LOG_DIR || path.join(process.cwd(), 'logs');
 /**
- * 如果環境參數的ENABLE_FILE_LOGGING是false，則不會寫入日誌到檔案
- * 如果有指定LOG_DIR，則會寫入日誌到指定的目錄
- * 如果沒有指定LOG_DIR，則會寫入日誌到logs目錄
- * 如果沒有指定LOG_LEVEL，則會使用info等級
- * 如果沒有指定NODE_ENV，則會使用development等級
+ * If ENABLE_FILE_LOGGING is false, logs will not be written to files.
+ * If LOG_DIR is specified, logs will be written to the specified directory.
+ * If LOG_DIR is not specified, logs will be written to the logs directory.
+ * If LOG_LEVEL is not specified, the info level will be used.
+ * If NODE_ENV is not specified, the development environment will be used.
  */
 
-// 創建 logger 實例
+// Create logger instance
 export const log = winston.createLogger({
   level: logLevel || 'info',
   format: logFormat,
-  transports: []  // 不添加任何控制台輸出
+  transports: []  // No console output
 });
 
-// 如果啟用檔案日誌，添加檔案 transports
+// If file logging is enabled, add file transports
 if (enableFileLogging) {
   
-  // 添加綜合日誌檔案
+  // Add combined log file
   log.add(
     new winston.transports.File({
       filename: path.join(logDir, 'mantis-mcp-server-combined.log'),
@@ -37,7 +37,7 @@ if (enableFileLogging) {
     })
   );
 
-  // 添加錯誤日誌檔案 - 只處理錯誤級別的日誌
+  // Add error log file - only handles error-level logs
   log.add(
     new winston.transports.File({
       filename: path.join(logDir, 'mantis-mcp-server-error.log'),
