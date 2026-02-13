@@ -112,6 +112,20 @@ async function compressJsonData(data: any): Promise<string> {
   return compressed.toString('base64');
 }
 
+const DEFAULT_ISSUE_FIELDS = ['id', 'summary', 'description', 'status', 'project', 'category', 'reporter', 'handler', 'priority', 'severity', 'custom_fields', 'created_at', 'updated_at'];
+
+function filterIssueFields(issue: any, select?: string[]): any {
+  const fields = select?.includes('*') ? null : (select?.length ? select : DEFAULT_ISSUE_FIELDS);
+  if (!fields) return issue;
+  const filtered: Record<string, any> = {};
+  for (const field of fields) {
+    if (field in issue) {
+      filtered[field] = issue[field];
+    }
+  }
+  return filtered;
+}
+
 export function createServer(): McpServer {
   const server = new McpServer({
     name: "Mantis MCP Server",
@@ -193,18 +207,7 @@ export function createServer(): McpServer {
     async ({ issueId, select }) => {
       return withMantisConfigured("get_issue_by_id", async () => {
         const issue = await mantisApi.getIssueById(issueId);
-        const defaultFields = ['id', 'summary', 'description', 'status', 'project', 'category', 'reporter', 'handler', 'priority', 'severity', 'custom_fields', 'created_at', 'updated_at'];
-        const fields = select?.includes('*') ? null : (select?.length ? select : defaultFields);
-        if (fields) {
-          const filtered: Record<string, any> = {};
-          for (const field of fields) {
-            if (field in issue) {
-              filtered[field] = (issue as any)[field];
-            }
-          }
-          return JSON.stringify(filtered, null, 2);
-        }
-        return JSON.stringify(issue, null, 2);
+        return JSON.stringify(filterIssueFields(issue, select), null, 2);
       });
     }
   );
@@ -521,7 +524,7 @@ export function createServer(): McpServer {
           issueData.custom_fields = params.custom_fields;
         }
         const issue = await mantisApi.createIssue(issueData);
-        return JSON.stringify(issue, null, 2);
+        return JSON.stringify(filterIssueFields(issue), null, 2);
       });
     }
   );
@@ -562,7 +565,7 @@ export function createServer(): McpServer {
           updateData.custom_fields = params.custom_fields;
         }
         const issue = await mantisApi.updateIssue(params.issueId, updateData);
-        return JSON.stringify(issue, null, 2);
+        return JSON.stringify(filterIssueFields(issue), null, 2);
       });
     }
   );
@@ -580,7 +583,7 @@ export function createServer(): McpServer {
     async (params) => {
       return withMantisConfigured("change_issue_status", async () => {
         const issue = await mantisApi.changeIssueStatus(params.issueId, params.status, params.resolution, params.note);
-        return JSON.stringify(issue, null, 2);
+        return JSON.stringify(filterIssueFields(issue), null, 2);
       });
     }
   );
