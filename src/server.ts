@@ -574,7 +574,7 @@ export function createServer(): McpServer {
     {
       issueId: z.number().describe("Issue ID"),
       status: z.string().describe("Target status name (e.g.: 'closed', 'resolved', 'acknowledged', 'confirmed', 'assigned')"),
-      resolution: z.string().optional().describe("Resolution name (e.g.: 'fixed', 'unable to reproduce', 'not fixable', 'duplicate', 'no change required', 'suspended', 'won't fix')"),
+      resolution: z.string().optional().describe("Resolution name (e.g.: 'fixed', 'unable to reproduce', 'not fixable', 'duplicate', 'no change required', 'suspended', 'wont fix')"),
       note: z.string().optional().describe("Note explaining the status change"),
     },
     async (params) => {
